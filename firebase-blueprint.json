@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile data including preferences and location.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "city": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "bio": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "username", "email", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A socialize post with text, media, and reactions.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorPhoto": { "type": "string" },
+        "content": { "type": "string" },
+        "mediaURL": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "reactions": {
+          "type": "object",
+          "properties": {
+            "heart": { "type": "array", "items": { "type": "string" } },
+            "like": { "type": "array", "items": { "type": "string" } },
+            "flag": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "privacy": { "type": "string", "enum": ["public", "friends"] }
+      },
+      "required": ["authorId", "content", "timestamp", "reactions", "privacy"]
+    },
+    "Message": {
+      "title": "Private Message",
+      "description": "A direct message between two users.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "body": { "type": "string" },
+        "read": { "type": "boolean" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["senderId", "receiverId", "body", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles indexed by UID"
+    },
+    "posts/{postId}": {
+      "schema": "Post",
+      "description": "Social feed posts"
+    },
+    "messages/{messageId}": {
+      "schema": "Message",
+      "description": "Direct message thread logs"
+    }
+  }
+}
