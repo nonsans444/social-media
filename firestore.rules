@@ -18,23 +18,18 @@ service cloud.firestore {
     // 1. Users Collection
     match /users/{userId} {
       function isValidUser(data) {
-        return data.uid is string 
-          && data.username is string 
-          && data.email is string 
-          && data.city is string
-          && data.photoURL is string
-          && data.createdAt is number;
+        return data.uid is string && data.uid == userId
+          && data.username is string
+          && data.email is string;
       }
 
       allow get, list: if isSignedIn();
       
       allow create: if isOwner(userId) 
-        && isValidUser(incoming())
-        && incoming().uid == userId;
+        && isValidUser(incoming());
         
       allow update: if isOwner(userId)
         && isValidUser(incoming())
-        && incoming().uid == userId
         && incoming().email == existing().email;
     }
 

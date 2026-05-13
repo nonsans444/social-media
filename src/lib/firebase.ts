@@ -62,19 +62,8 @@ function getFirebase() {
       console.log("Firebase config found, initializing app:", firebaseConfig.projectId);
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
-      db = getFirestore(app);
+      db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
       storage = getStorage(app);
-      
-      // Connectivity check
-      getDocFromServer(doc(db, "test", "connection"))
-        .then(() => console.log("Firestore connection test successful"))
-        .catch((err) => {
-          if (err.message?.includes("offline")) {
-            console.error("Firestore SDK reports being offline. This might be due to network restrictions or initial connection delay.");
-          } else {
-            console.warn("Firestore connection check failed (expected if rules not set):", err);
-          }
-        });
     } catch (e) {
       console.error("Firebase initialization failed:", e);
       throw e;

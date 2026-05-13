@@ -15,7 +15,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { user } = useAuth();
   
   const handleReaction = async (type: keyof Post["reactions"]) => {
-    if (!user) return;
+    if (!user) {
+      alert("S'il vous plaît, connectez-vous pour réagir aux publications !");
+      return;
+    }
     
     const { db } = getFirebase();
     const postRef = doc(db, "posts", post.id);

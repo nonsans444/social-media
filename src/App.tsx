@@ -114,16 +114,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isSetup) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Initialisation de DZ-Connect</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-neutral-50">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-dz-green border-t-transparent rounded-full mb-6"
+        />
+        <h2 className="text-2xl font-bold mb-2">Initialisation de DZ-Connect...</h2>
         <p className="text-neutral-500 max-w-md">
-          Please complete the Firebase setup in the developer panel to start connecting with the community.
+          Connecting to Algerian network. Please wait a moment.
         </p>
       </div>
     );
   }
 
-  if (!user) return <Navigate to="/login" />;
   return <>{children}</>;
 };
 
@@ -144,8 +148,12 @@ export default function App() {
                   <section className="flex-1 min-w-0 border-x border-neutral-200 bg-white/50 backdrop-blur-sm min-h-[calc(100vh-4rem)]">
                     <Routes>
                       <Route path="/" element={<Feed />} />
-                      <Route path="/messages" element={<div className="p-8 text-center font-display font-medium text-neutral-400">Khouya Chat coming soon...</div>} />
-                      <Route path="/trending" element={<div className="p-8 text-center font-display font-medium text-neutral-400">Trending DZ...</div>} />
+                      <Route path="/messages" element={
+                        <RequireAuth>
+                          <div className="p-8 text-center font-display font-medium text-neutral-400">Khouya Chat coming soon...</div>
+                        </RequireAuth>
+                      } />
+                      <Route path="/trending" element={<Feed />} />
                       <Route path="/profile/:id" element={<div className="p-8 text-center font-display font-medium text-neutral-400">Profile View...</div>} />
                     </Routes>
                   </section>
@@ -161,3 +169,10 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" />;
+  return <>{children}</>;
+};

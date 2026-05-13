@@ -36,7 +36,20 @@ export const CreatePost = () => {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="bg-dz-green rounded-2xl p-6 border border-dz-green/20 shadow-lg mb-6 text-white text-center">
+        <h3 className="font-display font-bold text-lg mb-1">Join the community!</h3>
+        <p className="text-white/80 text-sm mb-4">Sign in to share your thoughts with fellow Algerians.</p>
+        <button 
+          onClick={() => window.location.href = '/login'}
+          className="bg-white text-dz-green px-6 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-neutral-50 transition-all active:scale-95"
+        >
+          Sign In Now
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm mb-6">
