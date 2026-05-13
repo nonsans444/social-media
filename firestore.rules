@@ -18,10 +18,12 @@ service cloud.firestore {
     // 1. Users Collection
     match /users/{userId} {
       function isValidUser(data) {
-        return data.uid is string && data.uid.size() <= 128
-          && data.username is string && data.username.size() <= 50
-          && data.email is string && data.email.size() <= 100
-          && data.city is string && data.city.size() <= 60;
+        return data.uid is string 
+          && data.username is string 
+          && data.email is string 
+          && data.city is string
+          && data.photoURL is string
+          && data.createdAt is number;
       }
 
       allow get, list: if isSignedIn();

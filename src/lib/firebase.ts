@@ -21,16 +21,10 @@ interface FirestoreErrorInfo {
   error: string;
   operationType: OperationType;
   path: string | null;
-  authInfo: {
-    userId?: string | null;
-    email?: string | null;
-    emailVerified?: boolean | null;
+  authStatus: {
+    isSignedIn: boolean;
+    isEmailVerified?: boolean | null;
     isAnonymous?: boolean | null;
-    tenantId?: string | null;
-    providerInfo?: {
-      providerId?: string | null;
-      email?: string | null;
-    }[];
   }
 }
 
@@ -38,23 +32,17 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   const { auth } = getFirebase();
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || []
+    authStatus: {
+      isSignedIn: !!auth.currentUser,
+      isEmailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous
     },
     operationType,
     path
   }
   const errorJson = JSON.stringify(errInfo);
-  console.error('Firestore Error: ', errorJson);
-  throw new Error(errorJson);
+  console.error('Firestore Error details:', errorJson);
+  throw new Error(`Firestore request failed: ${errInfo.error}`);
 }
 
 function getFirebase() {
