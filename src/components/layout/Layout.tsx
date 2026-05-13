@@ -37,10 +37,21 @@ const translations = {
     trending_title: "Wach rahou sari f DZ",
     khouya_chat: "Derdcha ta' l'khawa",
     made_by: "Khdemha",
+  },
+  en: {
+    search: "Search DZ-Connect...",
+    feed: "Feed",
+    messages: "Messages",
+    trending: "Trending",
+    profile: "Profile",
+    logout: "Log Out",
+    trending_title: "Trending in DZ",
+    khouya_chat: "Khouya Chat",
+    made_by: "Made by",
   }
 };
 
-type Lang = "ar" | "fr" | "dz";
+type Lang = "ar" | "fr" | "dz" | "en";
 
 export const Header = () => {
   const { user } = useAuth();
@@ -87,7 +98,7 @@ export const Header = () => {
                     lang === l ? "text-dz-green" : "text-neutral-600"
                   )}
                 >
-                  {l} {l === 'ar' ? '(العربية)' : l === 'fr' ? '(Français)' : '(Darja)'}
+                  {l} {l === 'ar' ? '(العربية)' : l === 'fr' ? '(Français)' : l === 'en' ? '(English)' : '(Darja)'}
                 </button>
               ))}
             </div>

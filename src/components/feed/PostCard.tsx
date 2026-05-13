@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { Post } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-import { getFirebase } from "../../lib/firebase";
+import { getFirebase, handleFirestoreError, OperationType } from "../../lib/firebase";
 import { formatDistanceToNow } from "date-fns";
 
 interface PostCardProps {
@@ -27,6 +27,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
       });
     } catch (error) {
       console.error("Error updating reaction:", error);
+      handleFirestoreError(error, OperationType.UPDATE, `posts/${post.id}`);
     }
   };
 

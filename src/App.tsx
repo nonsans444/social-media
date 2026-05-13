@@ -6,7 +6,7 @@ import { CreatePost } from "./components/feed/CreatePost";
 import { PostCard } from "./components/feed/PostCard";
 import { Post } from "./types";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { getFirebase } from "./lib/firebase";
+import { getFirebase, handleFirestoreError, OperationType } from "./lib/firebase";
 import { motion, AnimatePresence } from "motion/react";
 import { LogIn, Flag as FlagIcon } from "lucide-react";
 
@@ -26,6 +26,8 @@ const Feed = () => {
           ...(doc.data() as Omit<Post, "id">)
         }));
         setPosts(postsData);
+      }, (error) => {
+        handleFirestoreError(error, OperationType.LIST, "posts");
       });
       return () => unsubscribe();
     } catch (e) {
@@ -48,7 +50,7 @@ const Feed = () => {
 };
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, isSetup } = useAuth();
   
   if (user) return <Navigate to="/" />;
 
@@ -68,13 +70,19 @@ const Login = () => {
           Connect with friends and family.
         </p>
         
-        <button 
-          onClick={login}
-          className="w-full bg-neutral-900 hover:bg-neutral-800 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95"
-        >
-          <LogIn className="w-5 h-5" />
-          Continue with Google
-        </button>
+        {!isSetup ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 text-amber-800 text-xs">
+            Firebase is not configured yet. Please complete the setup in the developer panel.
+          </div>
+        ) : (
+          <button 
+            onClick={login}
+            className="w-full bg-neutral-900 hover:bg-neutral-800 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95"
+          >
+            <LogIn className="w-5 h-5" />
+            Continue with Google
+          </button>
+        )}
         
         <div className="mt-8 pt-8 border-t border-neutral-100">
           <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-2">

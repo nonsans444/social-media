@@ -5,8 +5,8 @@ import {
   GoogleAuthProvider, 
   signOut, 
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { getFirebase } from "../lib/firebase";
+import { doc, getDoc, setDoc, getDocFromServer } from "firebase/firestore";
+import { getFirebase, handleFirestoreError, OperationType } from "../lib/firebase";
 import { User } from "../types";
 
 interface AuthContextType {
@@ -33,8 +33,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
+          const userPath = `users/${firebaseUser.uid}`;
           try {
-            const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+            // Use getDoc instead of getDocFromServer for better resilience
+            const userDoc = await getDoc(doc(db, userPath));
             if (userDoc.exists()) {
               setUser(userDoc.data() as User);
             } else {
@@ -46,11 +48,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 photoURL: firebaseUser.photoURL || "",
                 createdAt: Date.now(),
               };
-              await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+              await setDoc(doc(db, userPath), newUser);
               setUser(newUser);
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error("Error syncing user:", err);
+            handleFirestoreError(err, OperationType.GET, userPath);
           }
         } else {
           setUser(null);
@@ -67,9 +70,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async () => {
-    const { auth } = getFirebase();
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    try {
+      const { auth } = getFirebase();
+      const provider = new GoogleAuthProvider();
+      // Ensure we use the popup method as it works better in the AI Studio environment
+      // when appropriately configured.
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      if (error.code === "auth/popup-blocked") {
+        alert("Pop-up blocked. Please allow pop-ups for this site to sign in.");
+      } else {
+        alert("Login failed: " + error.message);
+      }
+    }
   };
 
   const logout = () => {

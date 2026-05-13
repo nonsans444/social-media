@@ -3,7 +3,7 @@ import { Send, Image, MapPin, Smile, Globe, Users } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../../contexts/AuthContext";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { getFirebase } from "../../lib/firebase";
+import { getFirebase, handleFirestoreError, OperationType } from "../../lib/firebase";
 
 export const CreatePost = () => {
   const { user } = useAuth();
@@ -17,7 +17,8 @@ export const CreatePost = () => {
 
     try {
       const { db } = getFirebase();
-      await addDoc(collection(db, "posts"), {
+      const postPath = "posts";
+      await addDoc(collection(db, postPath), {
         authorId: user.uid,
         authorName: user.username,
         authorPhoto: user.photoURL,
@@ -31,6 +32,7 @@ export const CreatePost = () => {
       setIsExpanded(false);
     } catch (error) {
       console.error("Error creating post:", error);
+      handleFirestoreError(error, OperationType.CREATE, "posts");
     }
   };
 
